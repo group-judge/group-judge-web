@@ -56,6 +56,16 @@ T = {
         ("'資料庫暫時沒有回應，請稍後再試'", "'The database is not responding right now. Please try again later.'"),
         ("'連不上伺服器'", "'Cannot reach the server'"),
         ("'啟動失敗'", "'Failed to start'"),
+        ("title: '登出所有裝置'", "title: 'Sign out everywhere'"),
+        ("'你在每一台電腦、手機上的登入都會失效，包含這一台。懷疑登入被別人拿去用的時候按這個。'",
+         "'This signs you out on every computer and phone, including this one. Use it if you think someone else is using your sign-in.'"),
+        ("confirmText: '全部登出'", "confirmText: 'Sign out everywhere'"),
+        ("cancelText: '取消'", "cancelText: 'Cancel'"),
+        ("'登入已經失效，請重新登入後再按一次「登出所有裝置」'",
+         "'Your sign-in has already expired. Sign in again, then choose “Sign out everywhere” once more.'"),
+        ("`登出所有裝置失敗（${err?.message || '請稍後再試'}），其他裝置上的登入都還在`",
+         "`Could not sign out everywhere (${err?.message || 'please try again later'}). You are still signed in on your other devices.`"),
+        ("'已經登出所有裝置'", "'Signed out on every device'"),
     ],
 
     # ── 共用行為 ─────────────────────────────────────────────
@@ -227,6 +237,7 @@ T = {
         ("'向 LINE 確認每位成員現在的名字，更新到資料庫'", "'Ask LINE for every member’s current name and update the database'"),
         ("'切換到行動版'", "'Switch to mobile layout'"),
         ("'登出'", "'Sign out'"),
+        ("'登出所有裝置'", "'Sign out everywhere'"),
         ("[brandMark(), '小判官']", "[brandMark(), 'Group Judge']"),
     ],
     "js/desktop/rules.js": [
@@ -401,6 +412,7 @@ T = {
         ("'aria-label': '選單'", "'aria-label': 'Menu'"),
         ("'切換到桌面版'", "'Switch to desktop layout'"),
         ("'登出'", "'Sign out'"),
+        ("'登出所有裝置'", "'Sign out everywhere'"),
         ("'關閉'", "'Close'"),
         ("{ title: '帳號' }", "{ title: 'Account' }"),
         ("[brandMark(), '小判官']", "[brandMark(), 'Group Judge']"),

@@ -17,7 +17,7 @@ import { createRosterView } from './roster.js';
 import { createUnknownView } from './unknown.js';
 
 /** 掛上去，回傳卸載用的函式。 */
-export function mount(root, { user, brandMark, onLogout, onSwitchDevice }) {
+export function mount(root, { user, brandMark, onLogout, onLogoutAll, onSwitchDevice }) {
   const content = el('main', { class: 'page' });
   const tabButtons = new Map();
 
@@ -59,6 +59,7 @@ export function mount(root, { user, brandMark, onLogout, onSwitchDevice }) {
     el('div', { class: 'menu__who' }, user.email),
     el('button', { class: 'menu__item', type: 'button', onClick: onSwitchDevice }, 'Switch to mobile layout'),
     el('button', { class: 'menu__item', type: 'button', onClick: onLogout }, 'Sign out'),
+    el('button', { class: 'menu__item', type: 'button', onClick: onLogoutAll }, 'Sign out everywhere'),
   ]);
   const toggle = el('button', {
     class: 'btn btn--ghost menu__toggle', type: 'button', 'aria-haspopup': 'true',

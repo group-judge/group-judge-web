@@ -10,10 +10,12 @@
  *   js/mobile/  + css/mobile.css                               行動版
  */
 
-import { setAuthHandlers } from './api.js';
-import { NotPermitted, adoptDevSession, forgetLogin, logout, renderGoogleButton, restore } from './auth.js';
+import { ApiError, setAuthHandlers } from './api.js';
+import {
+  NotPermitted, adoptDevSession, forgetLogin, logout, logoutEverywhere, renderGoogleButton, restore,
+} from './auth.js';
 import { detectDevice, switchDevice } from './device.js';
-import { clear, el, loadFailed, openModal, spinner, toast, toastError } from './ui.js';
+import { clear, confirmDialog, el, loadFailed, openModal, spinner, toast, toastError } from './ui.js';
 
 const app = document.getElementById('app');
 const NO_PERMISSION = '這個帳號沒有使用權限';
@@ -92,11 +94,49 @@ async function showApp(user) {
         await logout();
         showLogin();
       },
+      onLogoutAll: logOutEverywhere,
       onSwitchDevice: () => switchDevice(device === 'mobile' ? 'desktop' : 'mobile'),
     });
   } catch (err) {
     clear(app).append(loadFailed(err?.message || '畫面載入失敗', () => showApp(user)));
   }
+}
+
+// 「登出所有裝置」正在跟後端講的時候是 true。放在這裡而不是畫面上：選單可以再打開，
+// 網路慢的時候第二次按下去，會帶著已經作廢的憑證再送一次，回來的 401 會蓋掉剛才那句
+// 「已經登出所有裝置」，變成「登入已經失效」。
+let loggingOutEverywhere = false;
+
+/** 選單裡的「登出所有裝置」：先講清楚會發生什麼，確定了才做。 */
+async function logOutEverywhere() {
+  if (loggingOutEverywhere) return;
+  const ok = await confirmDialog({
+    title: '登出所有裝置',
+    body: '你在每一台電腦、手機上的登入都會失效，包含這一台。懷疑登入被別人拿去用的時候按這個。',
+    confirmText: '全部登出',
+    cancelText: '取消',
+    danger: true,
+  });
+  if (!ok || loggingOutEverywhere) return;
+  loggingOutEverywhere = true;
+  try {
+    await logoutEverywhere();
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401) {
+      // 這一台的登入已經失效，後端認不出是誰，別台的也就收不掉：請他登入之後再按一次。
+      forgetLogin();
+      toast('登入已經失效，請重新登入後再按一次「登出所有裝置」', { error: true, duration: 8000 });
+      showLogin();
+    } else {
+      toast(`登出所有裝置失敗（${err?.message || '請稍後再試'}），其他裝置上的登入都還在`,
+        { error: true, duration: 8000 });
+    }
+    return;
+  } finally {
+    loggingOutEverywhere = false;
+  }
+  toast('已經登出所有裝置');
+  showLogin();
 }
 
 // ── 用到一半憑證失效 ──────────────────────────────────────

@@ -17,7 +17,7 @@ import { createRosterView } from './roster.js';
 import { createUnknownView } from './unknown.js';
 
 /** 掛上去，回傳卸載用的函式。 */
-export function mount(root, { user, brandMark, onLogout, onSwitchDevice }) {
+export function mount(root, { user, brandMark, onLogout, onLogoutAll, onSwitchDevice }) {
   const content = el('main', { class: 'mpage' });
   // 某些頁籤（待移除名單）有固定在頁籤列上方的操作列，放在這一格。
   const actionSlot = el('div', { class: 'mactions' });
@@ -65,6 +65,10 @@ export function mount(root, { user, brandMark, onLogout, onSwitchDevice }) {
             class: 'btn', type: 'button',
             onClick: () => { close(); onLogout(); },
           }, '登出'),
+          el('button', {
+            class: 'btn', type: 'button',
+            onClick: () => { close(); onLogoutAll(); },
+          }, '登出所有裝置'),
         ]),
       ]),
       el('div', { class: 'modal__actions' },

@@ -57,6 +57,11 @@ export async function logout() {
   }
 }
 
+/** 示範版沒有後端，也沒有別台裝置上的登入：跟登出一樣。 */
+export async function logoutEverywhere() {
+  await logout();
+}
+
 export function forgetLogin() {
   rememberDemoUser(null);
   currentUser = null;

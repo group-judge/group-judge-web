@@ -101,6 +101,24 @@ export async function logout() {
   }
 }
 
+/**
+ * 登出所有裝置：這個帳號在每一台電腦、手機上的登入都作廢，包含這一台。懷疑登入被別人
+ * 拿去用的時候按的——一般的登出只作廢這一台手上的那一張。
+ *
+ * ★ 跟 logout() 不一樣，後端沒做到就不算數：要的是別台上的登入也失效，只清掉這一台的話，
+ *   被拿走的那一張還能用。後端回錯就照樣丟出去，這一台也先不登出，讓畫面講清楚。
+ */
+export async function logoutEverywhere() {
+  await api.post('/auth/logout-all');
+  setToken(null);
+  currentUser = null;
+  try {
+    window.google?.accounts?.id?.disableAutoSelect?.();
+  } catch {
+    // Google 的 script 還沒載到就算了
+  }
+}
+
 /** 本地把登入狀態清掉，不通知後端。帳號被拿掉權限時用。 */
 export function forgetLogin() {
   setToken(null);

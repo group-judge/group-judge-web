@@ -1,6 +1,6 @@
 # 示範版（demo/）
 
-https://beethoreven.github.io/group-judge-web/demo/
+https://group-judge.github.io/group-judge-web/demo/
 
 給面試展示用的小判官後台。畫面跟正式版一模一樣（直接載入正式版的 `../js/`、`../css/`），
 但**一個請求都不送到後端**：資料是 `data.js` 寫死的假資料，版規與訊息的內容換成各欄位的

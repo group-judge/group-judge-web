@@ -1,6 +1,6 @@
 # 英文示範版（demo-en/）
 
-https://beethoreven.github.io/group-judge-web/demo-en/
+https://group-judge.github.io/group-judge-web/demo-en/
 
 中文示範版（`demo/`）的全英文版本，結構與行為一模一樣，也是一個請求都不送到後端。
 不需要了就整個 `demo-en/` 資料夾刪掉，正式版與中文示範版都不受影響。

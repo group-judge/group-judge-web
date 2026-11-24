@@ -2,6 +2,12 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
+  <!--
+    CSP：只准載入下面列的來源。示範版不連後端，connect-src 只有 Google 登入。import map 只能
+    寫在頁面裡，靠 sha256 放行，雜湊由 demo/tools/stamp.py 算好填進來。頁面裡不能有一般的 <script>，
+    開頭要先執行的那一段在 boot.js。
+  -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self'; script-src 'self' 'sha256-z640WTmqaBZ+PhNzP+H9c0vDeJ7G6NXsex31KdhJqgQ=' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style https://fonts.googleapis.com; font-src https://fonts.gstatic.com; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
   <title>小判官（示範版）</title>
@@ -11,20 +17,7 @@
     示範版：畫面程式全部沿用正式版的 ../js/，只用下面的 import map 把 api.js、auth.js
     換成 demo/ 裡的假資料版本，一個請求都不會送到後端。說明在 demo/README.md。
   -->
-  <script>
-    // ★ 這一頁跟正式版同一個來源（group-judge.github.io），localStorage 是共用的。
-    //   所有 key 加上「demo:」，示範版讀不到正式版的管理員登入憑證，切換裝置、
-    //   排序之類的偏好也不會影響正式版。這一段一定要在任何模組之前執行。
-    (() => {
-      const PREFIX = 'demo:';
-      const S = Storage.prototype;
-      const { getItem, setItem, removeItem } = S;
-      S.getItem = function (key) { return getItem.call(this, PREFIX + key); };
-      S.setItem = function (key, value) { return setItem.call(this, PREFIX + key, value); };
-      S.removeItem = function (key) { return removeItem.call(this, PREFIX + key); };
-    })();
-    window.__GOOGLE_CLIENT_ID__ = '751584304633-jih4ib0f4ikauc3qlh1o5vkgrit2kr1d.apps.googleusercontent.com';
-  </script>
+  <script src="boot.js?v=c768d532b8"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,7 +25,7 @@
   <link rel="stylesheet" href="../css/base.css?v=3ff0adead0">
   <link rel="stylesheet" href="demo.css?v=6a636bff4f">
   <!-- stamp:start（demo/tools/stamp.py 產生的，不要手改） -->
-  <script>window.__ASSET_VERSIONS__ = {"css/desktop.css": "e74105b9ff", "css/mobile.css": "3a0d567bd5"};</script>
+  <script type="application/json" id="asset-versions">{"css/desktop.css": "e74105b9ff", "css/mobile.css": "3a0d567bd5"}</script>
   <script type="importmap">
 {
   "imports": {
@@ -53,7 +46,7 @@
     "../js/logic/navigation.js": "../js/logic/navigation.js?v=663697d7ac",
     "../js/logic/roster.js": "../js/logic/roster.js?v=35459a2d8c",
     "../js/logic/unknown.js": "../js/logic/unknown.js?v=27e3ad0ba4",
-    "../js/main.js": "../js/main.js?v=41b6ef284a",
+    "../js/main.js": "../js/main.js?v=c555d745c3",
     "../js/mobile/cleanup.js": "../js/mobile/cleanup.js?v=972a1e9300",
     "../js/mobile/members.js": "../js/mobile/members.js?v=97731f5ffe",
     "../js/mobile/messages.js": "../js/mobile/messages.js?v=4bcecd4029",
@@ -66,7 +59,7 @@
     "./api.js": "./api.js?v=9a1ae9c244",
     "./auth.js": "./auth.js?v=7861f12170",
     "./data.js": "./data.js?v=6c1084bf0d",
-    "./session.js": "./session.js?v=07e3179933"
+    "./session.js": "./session.js?v=ecb7a0b8a1"
   }
 }
   </script>
@@ -76,6 +69,6 @@
 <body>
   <div class="demo-banner" role="note">示範版｜資料都是虛構的，不會連到小判官的後端；可以隨意操作，重新整理就還原。</div>
   <div id="app"></div>
-  <script type="module" src="../js/main.js?v=41b6ef284a"></script>
+  <script type="module" src="../js/main.js?v=c555d745c3"></script>
 </body>
 </html>

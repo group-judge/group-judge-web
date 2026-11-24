@@ -14,13 +14,15 @@
   - 對照表裡的某一句在來源檔裡找不到（正式版改了文字）
   - 換完之後程式碼裡還有中文（正式版多了新的文字）——註解不算，註解照舊是中文
 
-不翻譯、手寫的只有 demo-en/js/data.js（英文的假資料與說明）與 demo-en/index.html。
+不翻譯、手寫的只有 demo-en/js/data.js（英文的假資料與說明）、demo-en/index.html 與
+demo-en/boot.js。index.html 裡 CSP 的 import map 雜湊也由這支填。
 英文版是自己完整的一份（js、css 都在 demo-en/ 裡），不需要 import map 換檔案；
 import map 只用來帶版本號，理由同 tools/stamp.py。
 """
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -36,6 +38,16 @@ START = "  <!-- stamp:start（demo-en/tools/build.py 產生的，不要手改）
 END = "  <!-- stamp:end -->"
 HAND_WRITTEN = {"js/data.js"}
 CJK = re.compile(r"[　-〿㐀-鿿＀-￯]")
+CSP_HASH = re.compile(r"""(<meta http-equiv="Content-Security-Policy" content="[^"]*'sha256-)[A-Za-z0-9+/=]*(')""")
+
+
+def _fill_csp_hash(page: str, import_map: str, name: str) -> str:
+    """CSP 靠 sha256 放行頁面裡的 import map；import map 一變，雜湊就要跟著換。"""
+    digest = base64.b64encode(hashlib.sha256(import_map.encode()).digest()).decode()
+    page, found = CSP_HASH.subn(lambda m: m.group(1) + digest + m.group(2), page)
+    if found != 1:
+        raise SystemExit(f"{name} 的 CSP 裡找不到 'sha256-…'（import map 的雜湊要填在那裡）")
+    return page
 
 
 def _walk(folder: str, suffix: str) -> list[str]:
@@ -124,12 +136,11 @@ def wanted() -> dict[str, str]:
     scripts = {path: version(text) for path, text in out.items() if path.endswith(".js")}
     styles = {path: version(text) for path, text in out.items() if path in ("css/desktop.css", "css/mobile.css")}
     imports = {f"./{path}": f"./{path}?v={v}" for path, v in sorted(scripts.items())}
+    import_map = "\n" + json.dumps({"imports": imports}, indent=2, sort_keys=True) + "\n  "
     block = "\n".join([
         START,
-        f"  <script>window.__ASSET_VERSIONS__ = {json.dumps(styles, sort_keys=True)};</script>",
-        '  <script type="importmap">',
-        json.dumps({"imports": imports}, indent=2, sort_keys=True),
-        "  </script>",
+        f'  <script type="application/json" id="asset-versions">{json.dumps(styles, sort_keys=True)}</script>',
+        f'  <script type="importmap">{import_map}</script>',
         END,
     ])
     with open(os.path.join(HERE, "index.html"), encoding="utf-8") as f:
@@ -140,7 +151,10 @@ def wanted() -> dict[str, str]:
     page = re.sub(r'href="css/base\.css(\?v=[0-9a-f]+)?"', f'href="css/base.css?v={version(out["css/base.css"])}"', page)
     page = re.sub(r'href="demo\.css(\?v=[0-9a-f]+)?"', f'href="demo.css?v={version(out["demo.css"])}"', page)
     page = re.sub(r'src="js/main\.js(\?v=[0-9a-f]+)?"', f'src="js/main.js?v={scripts["js/main.js"]}"', page)
-    out["index.html"] = page
+    with open(os.path.join(HERE, "boot.js"), encoding="utf-8") as f:
+        boot = version(f.read())
+    page = re.sub(r'src="boot\.js(\?v=[0-9a-f]+)?"', f'src="boot.js?v={boot}"', page)
+    out["index.html"] = _fill_csp_hash(page, import_map, "demo-en/index.html")
     return out
 
 

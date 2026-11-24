@@ -14,11 +14,13 @@
   2. demo/css/desktop.css、mobile.css：正式版的 js/main.js 用「相對於頁面」的路徑
      載入 css/desktop.css，在 demo/ 底下會找 demo/css/。這兩個檔案只有一行
      @import，轉到正式版的那一份。
-  3. ../css/base.css、../js/main.js 的網址帶上版本。
+  3. ../css/base.css、../js/main.js、boot.js 的網址帶上版本。
+  4. CSP 裡 import map 的 sha256（import map 只能寫在頁面裡，CSP 靠雜湊放行）。
 """
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -30,6 +32,16 @@ ROOT = os.path.dirname(DEMO)
 START = "  <!-- stamp:start（demo/tools/stamp.py 產生的，不要手改） -->"
 END = "  <!-- stamp:end -->"
 REPLACED = {"js/api.js": "api.js", "js/auth.js": "auth.js"}
+CSP_HASH = re.compile(r"""(<meta http-equiv="Content-Security-Policy" content="[^"]*'sha256-)[A-Za-z0-9+/=]*(')""")
+
+
+def _fill_csp_hash(page: str, import_map: str, name: str) -> str:
+    """CSP 靠 sha256 放行頁面裡的 import map；import map 一變，雜湊就要跟著換。"""
+    digest = base64.b64encode(hashlib.sha256(import_map.encode()).digest()).decode()
+    page, found = CSP_HASH.subn(lambda m: m.group(1) + digest + m.group(2), page)
+    if found != 1:
+        raise SystemExit(f"{name} 的 CSP 裡找不到 'sha256-…'（import map 的雜湊要填在那裡）")
+    return page
 
 
 def _files(base: str, folder: str, suffix: str) -> list[str]:
@@ -59,6 +71,7 @@ def wanted() -> dict[str, str]:
     out = {f"css/{device}.css": _shim(device) for device in ("desktop", "mobile")}
 
     demo_scripts = {p: _version(os.path.join(DEMO, p)) for p in _files(DEMO, ".", ".js") if not p.startswith("tools/")}
+    boot = demo_scripts.pop("boot.js")  # 一般的 <script src>，不是模組，不放進 import map
     imports = {}
     for path in _files(ROOT, "js", ".js"):
         if path in REPLACED:
@@ -71,12 +84,11 @@ def wanted() -> dict[str, str]:
 
     # 給 js/main.js 的 versioned() 查的：key 跟正式版一樣，值是 demo/css/ 那個轉接檔的版本。
     styles = {key: hashlib.sha1(text.encode()).hexdigest()[:10] for key, text in out.items()}
+    import_map = "\n" + json.dumps({"imports": imports}, indent=2, sort_keys=True) + "\n  "
     block = "\n".join([
         START,
-        f"  <script>window.__ASSET_VERSIONS__ = {json.dumps(styles, sort_keys=True)};</script>",
-        '  <script type="importmap">',
-        json.dumps({"imports": imports}, indent=2, sort_keys=True),
-        "  </script>",
+        f'  <script type="application/json" id="asset-versions">{json.dumps(styles, sort_keys=True)}</script>',
+        f'  <script type="importmap">{import_map}</script>',
         END,
     ])
 
@@ -91,7 +103,8 @@ def wanted() -> dict[str, str]:
     page = re.sub(r'href="demo\.css(\?v=[0-9a-f]+)?"', f'href="demo.css?v={css}"', page)
     main = _version(os.path.join(ROOT, "js", "main.js"))
     page = re.sub(r'src="\.\./js/main\.js(\?v=[0-9a-f]+)?"', f'src="../js/main.js?v={main}"', page)
-    out["index.html"] = page
+    page = re.sub(r'src="boot\.js(\?v=[0-9a-f]+)?"', f'src="boot.js?v={boot}"', page)
+    out["index.html"] = _fill_csp_hash(page, import_map, "demo/index.html")
     return out
 
 

@@ -11,7 +11,7 @@
 
 import { api, ApiError, IS_LOCAL, getToken, setToken } from './api.js';
 
-// Google OAuth 用戶端 ID。部署時由 index.html 的 window.__GOOGLE_CLIENT_ID__
+// Google OAuth 用戶端 ID。部署時由 config.js 的 window.__GOOGLE_CLIENT_ID__
 // 提供，本機開發可以用 ?googleClientId= 覆寫。
 //
 // ★ 覆寫只在本機有效，理由同 js/api.js 的 ?apiBase=：正式站不讓網址決定
@@ -133,7 +133,7 @@ export function forgetLogin() {
  */
 export function renderGoogleButton(container, { onSuccess, onError }) {
   if (!CLIENT_ID) {
-    container.textContent = '尚未設定 Google 用戶端 ID（index.html 的 __GOOGLE_CLIENT_ID__）';
+    container.textContent = '尚未設定 Google 用戶端 ID（config.js 的 __GOOGLE_CLIENT_ID__）';
     return;
   }
 

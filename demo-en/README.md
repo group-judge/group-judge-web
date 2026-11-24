@@ -11,7 +11,8 @@ https://group-judge.github.io/group-judge-web/demo-en/
 |---|---|
 | `js/**`（`data.js` 除外）、`css/*.css`、`demo.css` | **產生的**：`tools/build.py` 把正式版的 `js/`、`css/` 與中文示範版的 `demo/api.js`、`auth.js`、`session.js`、`demo.css` 複製過來，照 `tools/translations.py` 的中英對照表換掉文字 |
 | `js/data.js` | 手寫：英文的假資料、版規與訊息的功能說明、英文變數名稱 |
-| `index.html` | 手寫：英文的提示列、拉丁字型（正式版的 Noto Sans TC 會把 ’ “ ” — 畫成全形）；版本號那一段是 `build.py` 填的 |
+| `index.html` | 手寫：英文的提示列、拉丁字型（正式版的 Noto Sans TC 會把 ’ “ ” — 畫成全形）；版本號那一段與 CSP 裡 import map 的 sha256 是 `build.py` 填的 |
+| `boot.js` | 手寫：在任何模組之前執行，localStorage 的 key 加上 `demo-en:`、Google 用戶端 ID（CSP 不放行頁面裡的程式，所以放在外部檔案） |
 
 **產生的檔案不要手改**，改了下次產生就被蓋掉。要改文字就改 `tools/translations.py`。
 
@@ -30,7 +31,7 @@ python3 demo-en/tools/build.py
 ## 不能影響正式版
 
 - 正式版的檔案一個都不為英文版改；產生工具只讀正式版、只寫 `demo-en/`。
-- `index.html` 一開頭把這一頁所有 localStorage key 加上 `demo-en:`，讀不到正式版的
+- `boot.js`（`index.html` 一開頭載入）把這一頁所有 localStorage key 加上 `demo-en:`，讀不到正式版的
   管理員登入憑證，偏好設定也跟正式版、中文示範版互不影響。
 - 頁面沒有設定後端網址，假後端裡也沒有 fetch。
 

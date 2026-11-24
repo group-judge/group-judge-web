@@ -13,7 +13,10 @@
   - js：index.html 裡放一張 import map，把每個模組的網址對到帶版本的那一個。模組之間
     互相 import 的寫法不用動，瀏覽器會照這張表換網址（動態 import 也一樣）。
   - css：base.css 直接寫在 <link> 上；桌面版／行動版的那一份是 js/main.js 載入的，
-    版本放在 window.__ASSET_VERSIONS__ 讓它查。
+    版本放在 <script type="application/json" id="asset-versions"> 讓它查。
+  - config.js 也直接寫在 <script src> 上。
+  - CSP：import map 只能寫在頁面裡，CSP 靠它的 sha256 放行。import map 一變，雜湊就
+    跟著變，這支會一起填進 <meta http-equiv="Content-Security-Policy">。
   - index.html 自己不必處理：重新整理時瀏覽器一定會向伺服器確認它是不是最新的。
 
 沒跑這支也不會壞：表上沒有的檔案照原本的網址載入，只是又回到「最多舊 10 分鐘」。
@@ -22,6 +25,7 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -30,6 +34,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 START, END = "  <!-- stamp:start（tools/stamp.py 產生的，不要手改） -->", "  <!-- stamp:end -->"
+CSP_HASH = re.compile(r"""(<meta http-equiv="Content-Security-Policy" content="[^"]*'sha256-)[A-Za-z0-9+/=]*(')""")
 
 
 def _files(folder: str, suffix: str) -> list[str]:
@@ -51,12 +56,11 @@ def stamped(page: str) -> str:
     scripts = {path: _version(path) for path in _files("js", ".js")}
     styles = {path: _version(path) for path in _files("css", ".css")}
     imports = {f"./{path}": f"./{path}?v={version}" for path, version in scripts.items()}
+    import_map = "\n" + json.dumps({"imports": imports}, indent=2, sort_keys=True) + "\n  "
     block = "\n".join([
         START,
-        f"  <script>window.__ASSET_VERSIONS__ = {json.dumps(styles, sort_keys=True)};</script>",
-        '  <script type="importmap">',
-        json.dumps({"imports": imports}, indent=2, sort_keys=True),
-        "  </script>",
+        f'  <script type="application/json" id="asset-versions">{json.dumps(styles, sort_keys=True)}</script>',
+        f'  <script type="importmap">{import_map}</script>',
         END,
     ])
     if START in page:
@@ -68,6 +72,11 @@ def stamped(page: str) -> str:
         page = page.replace(marker, block + "\n" + marker)
     page = re.sub(r'href="css/base\.css(\?v=[0-9a-f]+)?"', f'href="css/base.css?v={styles["css/base.css"]}"', page)
     page = re.sub(r'src="js/main\.js(\?v=[0-9a-f]+)?"', f'src="js/main.js?v={scripts["js/main.js"]}"', page)
+    page = re.sub(r'src="config\.js(\?v=[0-9a-f]+)?"', f'src="config.js?v={_version("config.js")}"', page)
+    digest = base64.b64encode(hashlib.sha256(import_map.encode()).digest()).decode()
+    page, found = CSP_HASH.subn(lambda m: m.group(1) + digest + m.group(2), page)
+    if found != 1:
+        raise SystemExit("index.html 的 CSP 裡找不到 'sha256-…'（import map 的雜湊要填在那裡）")
     return page
 
 

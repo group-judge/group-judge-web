@@ -11,10 +11,11 @@ export const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1' || HOST ===
 
 // 後端位址。
 //
-// ★ 本機那一段不能省。index.html 裡寫死的是正式站的後端網址，而本機開發用的
-//   是同一份 index.html——少了這一段，在 localhost 開頁面時這一頁會去跟正式
+// ★ 本機那一段不能省。config.js 裡寫死的是正式站的後端網址，而本機開發用的
+//   是同一份 config.js——少了這一段，在 localhost 開頁面時這一頁會去跟正式
 //   後端說話，症狀是一整排 `Failed to fetch`，看起來像「本機後端沒開」。
-//   5002 是後端的預設 port。要在本機打別的位址，帶 ?apiBase= 就好。
+//   5002 是後端的預設 port。要在本機打別的位址，帶 ?apiBase= 就好——但 index.html 的
+//   CSP（connect-src）只放行 http://localhost:5002，別的位址要一起加進去才連得到。
 //
 // ★ ?apiBase= **只在本機有效**。每個請求都帶著登入憑證（下面的 Authorization），
 //   正式站要是也認這個參數，別人只要給管理員一條

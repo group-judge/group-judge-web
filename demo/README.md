@@ -16,16 +16,17 @@ https://group-judge.github.io/group-judge-web/demo/
 | 檔案 | 作用 |
 |---|---|
 | `index.html` | 入口。import map 把 `../js/api.js`、`../js/auth.js` 換成這裡的版本 |
+| `boot.js` | 在任何模組之前執行：localStorage 的 key 加上 `demo:`、Google 用戶端 ID（CSP 不放行頁面裡的程式，所以放在外部檔案） |
 | `api.js` | 假的後端：照 `group-judge-backend/app.py` 的回應格式用假資料回答 |
 | `auth.js`、`session.js` | 假的登入：Google 登入只在瀏覽器裡讀 email 拿來顯示，不管誰登入都是同一位「示範使用者」（一般成員） |
 | `data.js` | 假資料與說明文字。名字全是虛構的 |
 | `css/*.css` | 一行 `@import` 轉到正式版的樣式（正式版的 `main.js` 用相對於頁面的路徑載入樣式） |
-| `tools/stamp.py` | 產生上面的 import map 與 `css/`，並替每個檔案帶上版本 |
+| `tools/stamp.py` | 產生上面的 import map 與 `css/`，替每個檔案帶上版本，並把 import map 的 sha256 填進 CSP |
 
 ## 不能影響正式版
 
 - **正式版的檔案一個都不改。** 示範版需要的轉接全部放在 `demo/` 裡。
-- 示範版跟正式版同一個來源，localStorage 是共用的。`index.html` 一開頭把這一頁所有
+- 示範版跟正式版同一個來源，localStorage 是共用的。`boot.js`（`index.html` 一開頭載入）把這一頁所有
   key 加上 `demo:`，示範版讀不到正式版的管理員登入憑證，切換裝置、排序之類的偏好也
   不會互相影響。
 - 示範版的頁面沒有設定後端網址（`__GROUP_JUDGE_API_HOST__`）：萬一 import map 沒生效

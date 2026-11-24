@@ -2,6 +2,12 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
+  <!--
+    CSP：只准載入下面列的來源。import map 只能寫在頁面裡，靠 sha256 放行，雜湊由 tools/stamp.py
+    算好填進來（改了 import map 一定要重跑）。http://localhost:5002 是本機開發的後端（見 js/api.js）。
+    畫面的設定在 config.js，不能寫成頁面裡的 <script>，否則會被這行擋掉。
+  -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self'; script-src 'self' 'sha256-IOi85RUAFGYETxYfyi6H/nYOrDtM18WieMQQJOjVpBs=' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style https://fonts.googleapis.com; font-src https://fonts.gstatic.com; frame-src https://accounts.google.com/gsi/; connect-src https://group-judge-backend.onrender.com https://accounts.google.com/gsi/ http://localhost:5002">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>小判官</title>
   <link rel="icon" type="image/png" href="favicon.png?v=2">
@@ -12,20 +18,14 @@
   <!-- 兩種版面共用的樣式。桌面版／行動版各自的那一份由 js/main.js 判斷裝置後才載入。 -->
   <link rel="stylesheet" href="css/base.css?v=3ff0adead0">
 
-  <script>
-    // 部署時填入。本機開發不必改：在 localhost 開這一頁時，後端預設是
-    // http://localhost:5002（見 js/api.js），也可以用網址參數覆寫（只在 localhost 有效）：
-    //   ?apiBase=http://localhost:5002&googleClientId=xxx
-    window.__GROUP_JUDGE_API_HOST__ = 'https://group-judge-backend.onrender.com';
-    window.__GOOGLE_CLIENT_ID__ = '751584304633-jih4ib0f4ikauc3qlh1o5vkgrit2kr1d.apps.googleusercontent.com';
-  </script>
+  <script src="config.js?v=8b39493e0b"></script>
   <!-- stamp:start（tools/stamp.py 產生的，不要手改） -->
-  <script>window.__ASSET_VERSIONS__ = {"css/base.css": "3ff0adead0", "css/desktop.css": "5d9653abc6", "css/mobile.css": "67ec4f57c6"};</script>
+  <script type="application/json" id="asset-versions">{"css/base.css": "3ff0adead0", "css/desktop.css": "5d9653abc6", "css/mobile.css": "67ec4f57c6"}</script>
   <script type="importmap">
 {
   "imports": {
-    "./js/api.js": "./js/api.js?v=2101f24a4f",
-    "./js/auth.js": "./js/auth.js?v=aa0a0f881f",
+    "./js/api.js": "./js/api.js?v=1743800553",
+    "./js/auth.js": "./js/auth.js?v=8a3cffbea6",
     "./js/desktop/cleanup.js": "./js/desktop/cleanup.js?v=3322bdc9c4",
     "./js/desktop/members.js": "./js/desktop/members.js?v=e13893f653",
     "./js/desktop/messages.js": "./js/desktop/messages.js?v=e60d1d9c68",
@@ -41,7 +41,7 @@
     "./js/logic/navigation.js": "./js/logic/navigation.js?v=663697d7ac",
     "./js/logic/roster.js": "./js/logic/roster.js?v=35459a2d8c",
     "./js/logic/unknown.js": "./js/logic/unknown.js?v=27e3ad0ba4",
-    "./js/main.js": "./js/main.js?v=41b6ef284a",
+    "./js/main.js": "./js/main.js?v=c555d745c3",
     "./js/mobile/cleanup.js": "./js/mobile/cleanup.js?v=972a1e9300",
     "./js/mobile/members.js": "./js/mobile/members.js?v=97731f5ffe",
     "./js/mobile/messages.js": "./js/mobile/messages.js?v=4bcecd4029",
@@ -59,6 +59,6 @@
 </head>
 <body>
   <div id="app"></div>
-  <script type="module" src="js/main.js?v=41b6ef284a"></script>
+  <script type="module" src="js/main.js?v=c555d745c3"></script>
 </body>
 </html>

@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <!--
+    CSP：只准載入下面列的來源。示範版不連後端，connect-src 只有 Google 登入。import map 只能
+    寫在頁面裡，靠 sha256 放行，雜湊由 demo-en/tools/build.py 算好填進來。頁面裡不能有一般的 <script>，
+    開頭要先執行的那一段在 boot.js。
+  -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self'; script-src 'self' 'sha256-CWWb5BvT7swIQbb52hooTx6KVRwVRMATDVbHJ7GTxT4=' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style https://fonts.googleapis.com; font-src https://fonts.gstatic.com; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
   <title>Group Judge (Demo)</title>
@@ -11,19 +17,7 @@
     英文示範版：js/、css/ 都是 demo-en/tools/build.py 從正式版翻譯產生的一份，假後端
     一個請求都不會送出去。說明在 demo-en/README.md。
   -->
-  <script>
-    // ★ 跟正式版、中文示範版同一個來源，localStorage 共用。所有 key 加上「demo-en:」，
-    //   讀不到正式版的管理員登入憑證，偏好設定也互不影響。這一段一定要在任何模組之前執行。
-    (() => {
-      const PREFIX = 'demo-en:';
-      const S = Storage.prototype;
-      const { getItem, setItem, removeItem } = S;
-      S.getItem = function (key) { return getItem.call(this, PREFIX + key); };
-      S.setItem = function (key, value) { return setItem.call(this, PREFIX + key, value); };
-      S.removeItem = function (key) { return removeItem.call(this, PREFIX + key); };
-    })();
-    window.__GOOGLE_CLIENT_ID__ = '751584304633-jih4ib0f4ikauc3qlh1o5vkgrit2kr1d.apps.googleusercontent.com';
-  </script>
+  <script src="boot.js?v=2bbbc4433d"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,7 +29,7 @@
     :root { --font: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
   </style>
   <!-- stamp:start（demo-en/tools/build.py 產生的，不要手改） -->
-  <script>window.__ASSET_VERSIONS__ = {"css/desktop.css": "2664f10653", "css/mobile.css": "b1440c5405"};</script>
+  <script type="application/json" id="asset-versions">{"css/desktop.css": "2664f10653", "css/mobile.css": "b1440c5405"}</script>
   <script type="importmap">
 {
   "imports": {
@@ -57,7 +51,7 @@
     "./js/logic/navigation.js": "./js/logic/navigation.js?v=93d5262fa7",
     "./js/logic/roster.js": "./js/logic/roster.js?v=93587039b8",
     "./js/logic/unknown.js": "./js/logic/unknown.js?v=bbc2082258",
-    "./js/main.js": "./js/main.js?v=42ae82bc50",
+    "./js/main.js": "./js/main.js?v=6d8e90d6cb",
     "./js/mobile/cleanup.js": "./js/mobile/cleanup.js?v=e3065dfbef",
     "./js/mobile/members.js": "./js/mobile/members.js?v=df6924adff",
     "./js/mobile/messages.js": "./js/mobile/messages.js?v=33f0b49bae",
@@ -65,7 +59,7 @@
     "./js/mobile/rules.js": "./js/mobile/rules.js?v=d031242c97",
     "./js/mobile/shell.js": "./js/mobile/shell.js?v=9032963bfa",
     "./js/mobile/unknown.js": "./js/mobile/unknown.js?v=b31c7029e5",
-    "./js/session.js": "./js/session.js?v=f7d5b6f6cb",
+    "./js/session.js": "./js/session.js?v=37879785b2",
     "./js/ui.js": "./js/ui.js?v=75d964fc73",
     "./js/widgets.js": "./js/widgets.js?v=433635aa0d"
   }
@@ -77,6 +71,6 @@
 <body>
   <div class="demo-banner" role="note">Demo | All data is fictional and nothing is sent to the Group Judge backend. Feel free to try anything — reload to reset.</div>
   <div id="app"></div>
-  <script type="module" src="js/main.js?v=42ae82bc50"></script>
+  <script type="module" src="js/main.js?v=6d8e90d6cb"></script>
 </body>
 </html>

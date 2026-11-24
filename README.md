@@ -47,7 +47,11 @@ GitHub Pages，從 `main` 分支的根目錄發佈（repo 的 Settings → Pages
 branch）。push 到 `main` 之後大約一分鐘生效，網址是
 https://group-judge.github.io/group-judge-web/ 。
 
-- `index.html` 裡要填好 `__GROUP_JUDGE_API_HOST__`（後端網址）與 `__GOOGLE_CLIENT_ID__`。
+- `config.js` 裡要填好 `__GROUP_JUDGE_API_HOST__`（後端網址）與 `__GOOGLE_CLIENT_ID__`。
+- 三個頁面（`index.html`、`demo/index.html`、`demo-en/index.html`）開頭都有一行 CSP，只准載入列出的
+  來源。後端網址換了，要一起改 `index.html` 的 `connect-src`；多用了新的外部來源（字型、CDN），
+  三頁都要加。頁面裡不能寫一般的 `<script>`，要放進外部檔案（正式版是 `config.js`，示範版是
+  `boot.js`）。import map 只能寫在頁面裡，CSP 靠它的 sha256 放行，雜湊由下面的產生工具填。
 - 站在 `/group-judge-web/` 這個子路徑底下，所以**所有路徑都要寫相對的**
   （`css/base.css`，不是 `/css/base.css`）。寫成絕對路徑在本機看不出問題，上線才會
   404。

@@ -68,11 +68,22 @@ function loadStylesheet(href) {
 
 /**
  * 樣式檔的網址帶上版本，檔案一改瀏覽器就會重抓（不然更新之後最多會舊 10 分鐘）。
- * 版本由 tools/stamp.py 寫在 index.html；沒有就用原本的網址。js 的部分靠 index.html 的
- * import map，不必在這裡處理。
+ * 版本由 tools/stamp.py 寫在 index.html 的 #asset-versions；沒有就用原本的網址。js 的部分
+ * 靠 index.html 的 import map，不必在這裡處理。
+ *
+ * #asset-versions 是 type="application/json" 的資料，不是程式：CSP 不放行頁面裡的程式，
+ * 資料不受影響。
  */
+const ASSET_VERSIONS = (() => {
+  try {
+    return JSON.parse(document.getElementById('asset-versions')?.textContent || '{}');
+  } catch {
+    return {};
+  }
+})();
+
 function versioned(path) {
-  const version = window.__ASSET_VERSIONS__?.[path];
+  const version = ASSET_VERSIONS[path];
   return version ? `${path}?v=${version}` : path;
 }
 

@@ -206,6 +206,38 @@ function people(at) {
   ];
 }
 
+/**
+ * 操作紀錄（後端 db/audit.py）：其他兩位管理員過去一個月在後台做的事，新的在前。
+ * 有一筆是已經不是管理員的人想看成員資料、被擋下來，一筆是登入被拒絕。
+ * 你在示範版裡改了東西，也會記進來（demo/api.js 的 record）。
+ */
+function auditLog(at, iso) {
+  const OWL = { actor_id: 2, actor_email: 'owl.admin@example.com' };
+  const MOMO = { actor_id: 3, actor_email: 'momo.admin@example.com' };
+  const FORMER = { actor_id: null, actor_email: 'former.admin@example.com' };
+  const rows = [
+    [30, OWL, 'login', null, {}],
+    [30, OWL, 'rules.edit', 1, {}],
+    [25, MOMO, 'login', null, {}],
+    [25, MOMO, 'member.edit', 26, { name: 'bob’s alt', changes: { exempt: [false, true] } }],
+    [20, MOMO, 'members.refresh', null, { checked: 28, renamed: [], missing: [], failed: 0 }],
+    [18, FORMER, 'admin_api', null, { method: 'GET', route: '/api/members' }, 'refused'],
+    [15, { actor_id: null, actor_email: 'owl.admin@example.com' }, 'login', 2, { reason: 'This email was used with a different Google account before' }, 'refused'],
+    [12, OWL, 'login', null, {}],
+    [12, OWL, 'rules.edit', 1, {}],
+    [12, OWL, 'extra_rules.edit', 2, {}],
+    [12, OWL, 'message.edit', 101, { key: 'welcome', name: 'Welcome' }],
+    [5, MOMO, 'member.mark_left', null, { ids: [27] }],
+    [3, OWL, 'members.refresh', null, { checked: 29, renamed: [], missing: [], failed: 0 }],
+    [2, OWL, 'cleanup.save', null, { kick_ids: [5, 6, 7, 8, 15, 16, 17], spare_ids: [23, 24] }],
+    [2, OWL, 'unknown.assign', 23, { message_id: 'demo-m3' }],
+    [1, MOMO, 'logout_all', null, { sessions: 2 }],
+  ];
+  return rows.map(([days, actor, action, target, detail, result = 'ok'], i) => ({
+    id: i + 1, at: iso(at.ago(days)), ...actor, action, target_id: target, result, detail,
+  })).reverse();
+}
+
 /** 這一頁的全部假資料。每次載入頁面建立一份新的。 */
 export function createStore(now = new Date()) {
   const period = makePeriod(now);
@@ -265,5 +297,6 @@ export function createStore(now = new Date()) {
     // 「Sync from LINE」第一次按會有一個改名、一個 LINE 查無此人，展示確認流程；之後就都沒變。
     refreshSurprises: { renamed: { id: 4, name: 'Little Trout 🐟' }, missing: [7] },
     prune: { removed: 48, left: 132 },
+    audit: auditLog(at, iso),
   };
 }

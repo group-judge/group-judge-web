@@ -109,7 +109,7 @@ export function createMembersView() {
             (unseen ? `${unseen} people Group Judge has never seen (they haven’t spoken yet).` : 'Group Judge knows everyone.')
           : (o.group.bound ? 'In group: updated when you press “Sync from LINE” above.' : 'In group: Group Judge is not in any group yet.')),
         el('p', {}, 'Unknown sender: messages in this review period whose sender LINE did not reveal. ' +
-          (o.unknown.open ? `${o.unknown.open} are not identified yet — handle them on the Unknown tab. ` : '') +
+          (o.unknown.open ? `${o.unknown.open} are not identified yet — handle them on the Anon tab. ` : '') +
           unknownNote(o.unknown.later)),
       ]),
     ]);

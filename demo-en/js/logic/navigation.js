@@ -13,9 +13,10 @@ export const TABS = [
   { key: 'rules', label: 'Rules', short: 'Rules' },
   { key: 'cleanup', label: 'Removal List', short: 'List' },
   { key: 'messages', label: 'Messages', short: 'Msgs' },
-  { key: 'members', label: 'Members', short: 'Members' },
+  { key: 'members', label: 'Members', short: 'People' },
   { key: 'roster', label: 'Roster Check', short: 'Roster' },
-  { key: 'unknown', label: 'Unknown Senders', short: 'Unknown' },
+  { key: 'unknown', label: 'Unknown Senders', short: 'Anon' },
+  { key: 'audit', label: 'Activity Log', short: 'Log' },
 ];
 
 const KEYS = TABS.map((t) => t.key);

@@ -15,6 +15,7 @@ export const TABS = [
   { key: 'members', label: '成員', short: '成員' },
   { key: 'roster', label: '發話對照', short: '對照' },
   { key: 'unknown', label: '未知發話', short: '未知' },
+  { key: 'audit', label: '操作紀錄', short: '紀錄' },
 ];
 
 const KEYS = TABS.map((t) => t.key);

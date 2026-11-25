@@ -7,7 +7,7 @@
     寫在頁面裡，靠 sha256 放行，雜湊由 demo/tools/stamp.py 算好填進來。頁面裡不能有一般的 <script>，
     開頭要先執行的那一段在 boot.js。
   -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self'; script-src 'self' 'sha256-z640WTmqaBZ+PhNzP+H9c0vDeJ7G6NXsex31KdhJqgQ=' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style https://fonts.googleapis.com; font-src https://fonts.gstatic.com; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; img-src 'self'; script-src 'self' 'sha256-rVXNWCW0IFIMZ0bDTWv2pmuP+BV2mJozh9HuLG1y2uA=' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style https://fonts.googleapis.com; font-src https://fonts.gstatic.com; frame-src https://accounts.google.com/gsi/; connect-src https://accounts.google.com/gsi/">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
   <title>小判官（示範版）</title>
@@ -22,43 +22,46 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="../css/base.css?v=3ff0adead0">
+  <link rel="stylesheet" href="../css/base.css?v=2b6845d136">
   <link rel="stylesheet" href="demo.css?v=6a636bff4f">
   <!-- stamp:start（demo/tools/stamp.py 產生的，不要手改） -->
-  <script type="application/json" id="asset-versions">{"css/desktop.css": "e74105b9ff", "css/mobile.css": "3a0d567bd5"}</script>
+  <script type="application/json" id="asset-versions">{"css/desktop.css": "263ce8bb63", "css/mobile.css": "77944ed087"}</script>
   <script type="importmap">
 {
   "imports": {
-    "../js/api.js": "./api.js?v=9a1ae9c244",
+    "../js/api.js": "./api.js?v=b2caacc726",
     "../js/auth.js": "./auth.js?v=7861f12170",
+    "../js/desktop/audit.js": "../js/desktop/audit.js?v=312da51124",
     "../js/desktop/cleanup.js": "../js/desktop/cleanup.js?v=3322bdc9c4",
     "../js/desktop/members.js": "../js/desktop/members.js?v=e13893f653",
     "../js/desktop/messages.js": "../js/desktop/messages.js?v=e60d1d9c68",
     "../js/desktop/roster.js": "../js/desktop/roster.js?v=b2fe935b58",
     "../js/desktop/rules.js": "../js/desktop/rules.js?v=7eb2859871",
-    "../js/desktop/shell.js": "../js/desktop/shell.js?v=c9e63a4a28",
+    "../js/desktop/shell.js": "../js/desktop/shell.js?v=8ae20de69f",
     "../js/desktop/unknown.js": "../js/desktop/unknown.js?v=7fe50c5548",
     "../js/device.js": "../js/device.js?v=7d569b4a60",
     "../js/format.js": "../js/format.js?v=be94aa1864",
+    "../js/logic/audit.js": "../js/logic/audit.js?v=39b09cb4ce",
     "../js/logic/cleanup.js": "../js/logic/cleanup.js?v=ad64d6533d",
     "../js/logic/content.js": "../js/logic/content.js?v=40031b21d4",
     "../js/logic/members.js": "../js/logic/members.js?v=166c330146",
-    "../js/logic/navigation.js": "../js/logic/navigation.js?v=663697d7ac",
+    "../js/logic/navigation.js": "../js/logic/navigation.js?v=e9bc2e624b",
     "../js/logic/roster.js": "../js/logic/roster.js?v=35459a2d8c",
     "../js/logic/unknown.js": "../js/logic/unknown.js?v=27e3ad0ba4",
     "../js/main.js": "../js/main.js?v=c555d745c3",
+    "../js/mobile/audit.js": "../js/mobile/audit.js?v=baaa637705",
     "../js/mobile/cleanup.js": "../js/mobile/cleanup.js?v=972a1e9300",
     "../js/mobile/members.js": "../js/mobile/members.js?v=97731f5ffe",
     "../js/mobile/messages.js": "../js/mobile/messages.js?v=4bcecd4029",
     "../js/mobile/roster.js": "../js/mobile/roster.js?v=a41626aa19",
     "../js/mobile/rules.js": "../js/mobile/rules.js?v=03795bd51b",
-    "../js/mobile/shell.js": "../js/mobile/shell.js?v=07d062ba19",
+    "../js/mobile/shell.js": "../js/mobile/shell.js?v=9693bb60f7",
     "../js/mobile/unknown.js": "../js/mobile/unknown.js?v=652f24399b",
     "../js/ui.js": "../js/ui.js?v=6f1f97eaef",
     "../js/widgets.js": "../js/widgets.js?v=8618c83ce5",
-    "./api.js": "./api.js?v=9a1ae9c244",
+    "./api.js": "./api.js?v=b2caacc726",
     "./auth.js": "./auth.js?v=7861f12170",
-    "./data.js": "./data.js?v=6c1084bf0d",
+    "./data.js": "./data.js?v=da324d802f",
     "./session.js": "./session.js?v=ecb7a0b8a1"
   }
 }

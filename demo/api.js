@@ -162,6 +162,20 @@ function example(text) {
   return at === -1 ? text : text.slice(at + 2).split('\n\n')[0];
 }
 
+/**
+ * 記一筆操作紀錄（後端 db/audit.py 的 record）：做的人是登入示範版的你。
+ * 只記動作有成功的，跟後端一樣。
+ */
+function record(action, detail = {}, targetId = null) {
+  store.audit.unshift({
+    id: Math.max(0, ...store.audit.map((e) => e.id)) + 1, at: iso(Date.now()),
+    actor_id: 1, actor_email: demoUser()?.email ?? null, action, target_id: targetId, result: 'ok', detail,
+  });
+}
+
+// 一頁幾筆。後端是 50；假資料沒那麼多，少一點才看得到「載入更早的紀錄」。
+const AUDIT_PAGE = 10;
+
 // ── 路由 ──────────────────────────────────────────────────
 
 function fail(status, message) {
@@ -178,11 +192,13 @@ const routes = [
   ['GET', /^\/api\/rules$/, () => ({ ...store.rules, max_length: MAX_LENGTH })],
   ['PUT', /^\/api\/rules$/, (_m, body) => {
     Object.assign(store.rules, { content: checkContent(body?.content), updated_at: iso(Date.now()) });
+    record('rules.edit', {}, store.rules.id);
     return { ...store.rules, max_length: MAX_LENGTH };
   }],
   ['GET', /^\/api\/extra-rules$/, () => ({ ...store.extraRules, max_length: MAX_LENGTH })],
   ['PUT', /^\/api\/extra-rules$/, (_m, body) => {
     Object.assign(store.extraRules, { content: checkContent(body?.content), updated_at: iso(Date.now()) });
+    record('extra_rules.edit', {}, store.extraRules.id);
     return { ...store.extraRules, max_length: MAX_LENGTH };
   }],
 
@@ -198,6 +214,7 @@ const routes = [
     const block = store.messageGroups.flatMap((g) => g.blocks).find((b) => b.id === Number(id));
     if (!block) fail(404, '找不到這則訊息');
     Object.assign(block, { content: checkContent(body?.content), updated_at: iso(Date.now()) });
+    record('message.edit', { name: block.name }, block.id);
     return block;
   }],
 
@@ -214,6 +231,7 @@ const routes = [
       manual_ids: new Set(kick.filter((id) => !auto.has(id))),
       identified_ids: new Set(spare.filter((id) => before?.identified_ids.has(id))),
     };
+    record('cleanup.save', { kick_ids: kick, spare_ids: spare });
     return cleanupState();
   }],
 
@@ -231,6 +249,7 @@ const routes = [
     if (!m) fail(404, '找不到這位成員');
     if (m.id === 1 && ('role' in changes || 'email' in changes)) fail(400, '不能改自己的身分或 email');
     let dropped = false;
+    const before = { ...m };
     if ('status' in changes) {
       if (changes.status === 'leaved' && m.status !== 'leaved') m.last_leave = iso(Date.now());
       m.status = changes.status;
@@ -246,6 +265,9 @@ const routes = [
         dropped = true;
       }
     }
+    const changed = Object.fromEntries(['role', 'status', 'email', 'exempt', 'banned']
+      .filter((key) => before[key] !== m[key]).map((key) => [key, [before[key], m[key]]]));
+    if (Object.keys(changed).length) record('member.edit', { name: m.name, changes: changed }, m.id);
     return { ...memberJson(m), dropped_from_list: dropped };
   }],
   ['POST', /^\/api\/members\/(\d+)\/merge$/, ([, id], body) => {
@@ -253,24 +275,27 @@ const routes = [
     const other = byId(body?.with);
     if (!kept || !other) fail(400, '沒有指定要跟哪一筆合併');
     if (other.id === 1) fail(400, '示範版不能把你自己那一筆合併掉，請選別人');
+    const namesBefore = [kept.name, other.name];
     kept.has_line_id = true;
     kept.name = other.name;
     kept.counts = kept.counts.map((c, i) => c + other.counts[i]);
     if (other.last_speak && (!kept.last_speak || other.last_speak > kept.last_speak)) kept.last_speak = other.last_speak;
     store.members = store.members.filter((m) => m !== other);
+    record('member.merge', { name: kept.name, names_before: namesBefore }, kept.id);
     return memberJson(kept);
   }],
   ['POST', /^\/api\/members\/mark-left$/, (_m, body) => {
-    let marked = 0;
+    const marked = [];
     for (const id of body?.ids ?? []) {
       const m = byId(id);
       if (m && m.status === 'joined') {
         m.status = 'leaved';
         m.last_leave = iso(Date.now());
-        marked += 1;
+        marked.push(m.id);
       }
     }
-    return { marked };
+    if (marked.length) record('member.mark_left', { ids: marked });
+    return { marked: marked.length };
   }],
   ['POST', /^\/api\/members\/refresh$/, () => {
     const people = store.members.filter((m) => m.has_line_id && m.status === 'joined');
@@ -283,6 +308,7 @@ const routes = [
       m.name = surprise.renamed.name;
     }
     store.group.checked_at = iso(Date.now());
+    record('members.refresh', { checked: people.length });
     return {
       checked: people.length,
       renamed,
@@ -294,6 +320,7 @@ const routes = [
   ['POST', /^\/api\/records\/prune$/, () => {
     const result = { ...store.prune, keep_months: 6 };
     store.prune = { removed: 0, left: store.prune.left };
+    record('records.prune', { removed: result.removed });
     return result;
   }],
 
@@ -324,6 +351,7 @@ const routes = [
     if (!store.saved?.kick_ids.includes(body?.user_id)) fail(400, '只能指認給這個月存好的待移除名單上的人');
     message.user_id = body.user_id;
     identify(body.user_id);
+    record('unknown.assign', { message_id: message.id }, body.user_id);
     return unknownJson(message);
   }],
   ['POST', /^\/api\/unknown\/([^/]+)\/unassign$/, ([, id]) => {
@@ -332,7 +360,15 @@ const routes = [
     const userId = message.user_id;
     message.user_id = null;
     if (userId !== null) unidentify(userId);
+    record('unknown.unassign', { message_id: message.id }, userId);
     return unknownJson(message);
+  }],
+
+  ['GET', /^\/api\/audit$/, (_m, _body, query) => {
+    const before = query?.before ? Number(query.before) : null;
+    const rows = store.audit.filter((e) => before === null || e.id < before);
+    const page = rows.slice(0, AUDIT_PAGE);
+    return { entries: page, next: rows.length > AUDIT_PAGE ? page.at(-1).id : null, keep_days: 180 };
   }],
 ];
 

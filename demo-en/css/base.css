@@ -355,6 +355,9 @@ label.checklist__item { cursor: pointer; }
 }
 
 /* 篩選用的勾選小標籤 */
+/* 「載入更早的…」這種放在清單最下面、置中的按鈕。 */
+.more { display: flex; justify-content: center; margin: 16px 0; }
+
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
   display: inline-flex;

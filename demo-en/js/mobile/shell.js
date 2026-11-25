@@ -16,6 +16,7 @@ import { createMessagesView } from './messages.js';
 import { createMembersView } from './members.js';
 import { createRosterView } from './roster.js';
 import { createUnknownView } from './unknown.js';
+import { createAuditView } from './audit.js';
 
 /** 掛上去，回傳卸載用的函式。 */
 export function mount(root, { user, brandMark, onLogout, onLogoutAll, onSwitchDevice }) {
@@ -31,6 +32,7 @@ export function mount(root, { user, brandMark, onLogout, onLogoutAll, onSwitchDe
     members: createMembersView,
     roster: createRosterView,
     unknown: createUnknownView,
+    audit: createAuditView,
   }, (key, view) => {
     for (const [tabKey, button] of tabButtons) {
       button.classList.toggle('is-active', tabKey === key);

@@ -69,7 +69,8 @@ body { font-size: 16px; }
 .mactions__row { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 8px; }
 .mactions__row .btn { padding: 0 6px; }
 
-.mtabs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+/* minmax(0, 1fr)：七個頁籤一樣寬，字比格子寬也不會把整排撐出畫面。 */
+.mtabs { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
 .mtabs__tab {
   position: relative;
   min-height: 52px;

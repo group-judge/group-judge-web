@@ -30,9 +30,11 @@
   font-weight: 700;
   white-space: nowrap;
 }
-.topbar__tools { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.topbar__tools { display: flex; flex-shrink: 0; align-items: center; gap: 8px; margin-left: auto; }
 
-.tabs { display: flex; gap: 4px; }
+/* 視窗窄到頁籤排不下時（桌面版用到 721px），頁籤這一排自己左右捲，不把整頁撐寬、
+   不把右邊的按鈕擠出畫面。捲軸不顯示：觸控板、滑鼠滾輪都捲得動，換頁籤時也會自動捲到。 */
+.tabs { display: flex; gap: 4px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .tabs__tab {
   position: relative;
   padding: 18px 11px 16px;
@@ -51,7 +53,7 @@
   position: absolute;
   left: 10px;
   right: 10px;
-  bottom: -1px;
+  bottom: 0; /* 不能是負的：.tabs 會捲動，超出去的那一截會被切掉 */
   height: 3px;
   border-radius: 3px 3px 0 0;
   background: var(--seal);
